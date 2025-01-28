@@ -13,6 +13,8 @@ class MusicViewModel: ObservableObject {
     
     @Published var songs: MusicItemCollection<Song> = []
     @Published var authorizationStatus: MusicAuthorization.Status = .notDetermined
+    @Published var isPlaying: Bool = false
+    @Published var playingSong: Song?
     
     init(musicService: MusicService) {
         self.musicService = musicService
@@ -33,10 +35,24 @@ class MusicViewModel: ObservableObject {
         }
         
         do {
-            songs = try await musicService.fetchSongs()
+            let result = try await musicService.fetchSongs()
+            DispatchQueue.main.async {
+                self.songs = result
+            }
         } catch {
             print(error)
         }
+    }
+    
+    func play(song: Song) async throws{
+        isPlaying = true
+        playingSong = song
+        try await musicService.play(song: song)
+    }
+    
+    func pause() {
+        isPlaying = false
+        musicService.pause()
     }
     
     private func handleAuthorizationStatus(status: MusicAuthorization.Status) {
