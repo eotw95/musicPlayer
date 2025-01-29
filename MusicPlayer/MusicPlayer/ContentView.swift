@@ -43,10 +43,7 @@ struct ContentView: View {
                 }
             }
             
-            PlayingBar(
-                song: $viewModel.playingSong,
-                isPlaying: $viewModel.isPlaying
-            )
+            PlayingBar(viewModel: $viewModel)
         }
         .onAppear() {
             Task {
@@ -57,6 +54,27 @@ struct ContentView: View {
     }
 }
 
-#Preview {
-    ContentView()
+struct PlayingBar {
+    @Binding var viewModel: MusicViewModel
+    
+    var body: some View {
+        ZStack {
+            Color.green
+            HStack {
+                Text(viewModel.playingSong?.title ?? "再生中の曲はありません")
+                Spacer()
+                Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
+                    .onTapGesture {
+                        if !viewModel.isPlaying {
+                            viewModel.restartPlayback()
+                        } else {
+                            viewModel.pause()
+                        }
+                    }
+            }
+            .padding()
+            .background(Color.green)
+        }
+        .frame(height: 70)
+    }
 }
