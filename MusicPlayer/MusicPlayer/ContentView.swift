@@ -44,8 +44,10 @@ struct ContentView: View {
             }
             
             PlayingBar(
-                song: $viewModel.playingSong,
-                isPlaying: $viewModel.isPlaying
+                playingSong: $viewModel.playingSong,
+                isPlaying: $viewModel.isPlaying,
+                restartPlayback: { try await viewModel.restartPlayback() },
+                pausePlayback: { viewModel.pause() }
             )
         }
         .onAppear() {

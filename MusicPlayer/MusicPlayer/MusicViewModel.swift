@@ -52,9 +52,11 @@ class MusicViewModel: ObservableObject {
         try await musicService.playback(song: song)
     }
     
-    func restartPlayback() {
-        isPlaying = true
-        musicService.restartPlayback()
+    func restartPlayback() async throws{
+        DispatchQueue.main.async {
+            self.isPlaying = true
+        }
+        try await musicService.restartPlayback()
     }
     
     func pause() {

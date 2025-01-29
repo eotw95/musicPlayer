@@ -9,21 +9,30 @@ import SwiftUI
 import MusicKit
 
 struct PlayingBar: View {
-    @Binding var song: Song?
+    @Binding var playingSong: Song?
     @Binding var isPlaying: Bool
+    
+    var restartPlayback: () async throws -> Void
+    var pausePlayback: () -> Void
     
     var body: some View {
         ZStack {
             Color.green
             HStack {
-                Text(song?.title ?? "再生中の曲はありません")
+                Text(playingSong?.title ?? "再生中の曲はありません")
                 Spacer()
                 
-                if isPlaying {
-                    Image(systemName: "pause.fill")
-                } else {
-                    Image(systemName: "play.fill")
-                }
+                Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                    .onTapGesture {
+                        if isPlaying {
+                            pausePlayback()
+                        } else {
+                            guard let _ = playingSong else { return }
+                            Task {
+                                try await restartPlayback()
+                            }
+                        }
+                    }
             }
             .padding()
             .background(Color.green)

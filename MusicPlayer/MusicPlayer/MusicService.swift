@@ -13,7 +13,7 @@ protocol MusicService {
     func fetchRecommendations(term: String) async throws -> MusicItemCollection<MusicPersonalRecommendation>
     
     func playback(song: Song) async throws
-    func restartPlayback()
+    func restartPlayback() async throws
     func pause()
     
     func searchSongs(term: String) async throws -> MusicItemCollection<Song>
@@ -52,8 +52,13 @@ class MusicServiceImpl: MusicService {
         }
     }
     
-    func restartPlayback() {
-        player.restartCurrentEntry()
+    func restartPlayback() async throws{
+        do {
+            try await player.play()
+        } catch {
+            handleError(error, context: "restart song failed")
+            throw error
+        }
     }
     
     func pause() {
