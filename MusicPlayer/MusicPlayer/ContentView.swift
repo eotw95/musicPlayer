@@ -35,7 +35,7 @@ struct ContentView: View {
                             }
                             .onTapGesture {
                                 Task {
-                                    try await viewModel.play(song: song)
+                                    try await viewModel.playback(song: song)
                                 }
                             }
                         }
