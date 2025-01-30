@@ -12,6 +12,8 @@ class MusicViewModel: ObservableObject {
     private let musicService: MusicService
     
     @Published var songs: MusicItemCollection<Song> = []
+    @Published var recomendatedPlaylists: [MusicItemCollection<Station>] = []
+    @Published var recomendatedAlbums: [MusicItemCollection<Album>] = []
     @Published var authorizationStatus: MusicAuthorization.Status = .notDetermined
     @Published var isPlaying: Bool = false
     @Published var playingSong: Song?
@@ -42,6 +44,29 @@ class MusicViewModel: ObservableObject {
         } catch {
             print(error)
         }
+    }
+
+    func fetchRecommendatedAlbums() async throws {
+        guard let recommendations = try await fetchRecomendations() else { return }
+        self.recomendatedAlbums = recommendations.map { recommendation in
+            recommendation.albums
+        }
+    }
+    
+    func fetchRecommendatedPlaylists() async throws {
+        guard let recommendations = try await fetchRecomendations() else { return }
+        self.recomendatedPlaylists = recommendations.map { recommendation in
+            recommendation.playlists
+        }
+    }
+    
+    private func fetchRecomendations() async throws -> MusicItemCollection<MusicPersonalRecommendation>? {
+        guard authorizationStatus == .authorized else {
+            print("not authorized")
+            return nil
+        }
+        
+        return try await musicService.fetchRecommendations()
     }
     
     func playback(song: Song) async throws{

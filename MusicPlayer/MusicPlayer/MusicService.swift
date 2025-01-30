@@ -10,13 +10,11 @@ import MusicKit
 
 protocol MusicService {
     func fetchSongs() async throws -> MusicItemCollection<Song>
-    func fetchRecommendations(term: String) async throws -> MusicItemCollection<MusicPersonalRecommendation>
+    func fetchRecommendations() async throws -> MusicItemCollection<MusicPersonalRecommendation>
     
     func playback(song: Song) async throws
     func restartPlayback() async throws
     func pause()
-    
-    func searchSongs(term: String) async throws -> MusicItemCollection<Song>
 }
 
 class MusicServiceImpl: MusicService {
@@ -32,12 +30,12 @@ class MusicServiceImpl: MusicService {
         }
     }
     
-    func fetchRecommendations(term: String) async throws -> MusicItemCollection<MusicPersonalRecommendation> {
+    func fetchRecommendations() async throws -> MusicItemCollection<MusicPersonalRecommendation> {
         do {
             let response = try await MusicPersonalRecommendationsRequest().response()
             return response.recommendations
         } catch {
-            handleError(error, context: "Fetching recommendations with term '\(term)' failed")
+            handleError(error, context: "Fetching recommendations failed")
             throw error
         }
     }
@@ -63,19 +61,6 @@ class MusicServiceImpl: MusicService {
     
     func pause() {
         player.pause()
-    }
-    
-    func searchSongs(term: String) async throws -> MusicItemCollection<Song> {
-        do {
-            let response = try await MusicLibrarySearchRequest(
-                term: term,
-                types: [Song.self] as [any MusicLibrarySearchable.Type]
-            ).response()
-            return response.songs
-        } catch {
-            handleError(error, context: "Searching songs with term '\(term)' failed")
-            throw error
-        }
     }
 }
 
