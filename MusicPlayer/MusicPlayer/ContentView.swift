@@ -53,41 +53,10 @@ struct ContentView: View {
                 .font(.headline)
             ScrollView(.horizontal) {
                 LazyHStack(alignment: .top) {
-                    if viewModel.recomendatedAlbums.isEmpty {
+                    if viewModel.recomendations.isEmpty {
                         Text("Empty Playlist")
                     } else {
-                        ForEach(viewModel.recomendatedAlbums.flatMap { $0 }) { recommendation in
-                            VStack(alignment: .leading) {
-                                if let artwork = recommendation.artwork {
-                                    ArtworkImage(artwork, width: 150, height: 150)
-                                } else {
-                                    Image(systemName: "music.note")
-                                        .frame(width: 150, height: 150, alignment: .leading)
-                                }
-                                VStack(alignment: .leading) {
-                                    Text(recommendation.title)
-                                        .font(.headline)
-                                        .frame(width: 100)
-                                        .lineLimit(1)
-                                }
-                            }
-                            .padding(.horizontal, 5)
-                            .onTapGesture {
-                                
-                            }
-                        }
-                    }
-                }
-            }
-            
-            Text("オススメのプレイリスト一覧を取得")
-                .font(.headline)
-            ScrollView(.horizontal) {
-                LazyHStack(alignment: .top) {
-                    if viewModel.recomendatedPlaylists.isEmpty {
-                        Text("Empty Playlist")
-                    } else {
-                        ForEach(viewModel.recomendatedPlaylists.flatMap { $0 }) { recommendation in
+                        ForEach(viewModel.recomendations.flatMap { $0 }) { recommendation in
                             VStack(alignment: .leading) {
                                 if let artwork = recommendation.artwork {
                                     ArtworkImage(artwork, width: 150, height: 150)
@@ -122,8 +91,7 @@ struct ContentView: View {
             Task {
                 await viewModel.authorize()
                 try await viewModel.fetchSongs()
-                try await viewModel.fetchRecommendatedAlbums()
-                try await viewModel.fetchRecommendatedPlaylists()
+                try await viewModel.fetchRecomendations()
             }
         }
     }
