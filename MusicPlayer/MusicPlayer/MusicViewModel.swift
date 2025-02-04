@@ -15,7 +15,9 @@ class MusicViewModel: ObservableObject {
     @Published var authorizationStatus: MusicAuthorization.Status = .notDetermined
     @Published var isPlaying: Bool = false
     @Published var playingSong: Song?
-    @Published var recomendations: [MusicItemCollection<MusicPersonalRecommendation.Item>] = []
+    @Published var recomendatedAlbums: [AlbumEnity] = []
+    @Published var recomendatedPlaylists: [PlaylistEnity] = []
+    @Published var recomendatedStations: [StationEnity] = []
     
     init(musicService: MusicService) {
         self.musicService = musicService
@@ -52,10 +54,43 @@ class MusicViewModel: ObservableObject {
         }
         
         do {
-            let result = try await musicService.fetchRecommendations()
-            DispatchQueue.main.async {
-                self.recomendations = result.map{ recommendation in
-                    recommendation.items
+            let recomendations = try await musicService.fetchRecommendations()
+            
+            for recomendation in recomendations {
+                // MusicItemCollection<Album>のコレクションからAlbumを抽出
+                for item in recomendation.items {
+                    switch item {
+                    case .album(let album): do {
+                        self.recomendatedAlbums.append(
+                            AlbumEnity(
+                                id: album.id,
+                                title: album.title,
+                                artistName: album.artistName,
+                                artwork: album.artwork
+                            )
+                        )
+                    }
+                    case .playlist(let playlist): do {
+                        self.recomendatedPlaylists.append(
+                            PlaylistEnity(
+                                id: playlist.id,
+                                title: playlist.name,
+                                artwork: playlist.artwork
+                            )
+                        )
+                    }
+                    case .station(let station): do {
+                        self.recomendatedStations.append(
+                            StationEnity(
+                                id: station.id,
+                                title: station.name,
+                                artwork: station.artwork
+                            )
+                        )
+                    }
+                    @unknown default:
+                        return
+                    }
                 }
             }
         }
